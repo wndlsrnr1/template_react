@@ -2,6 +2,7 @@ import styles from './User.module.css';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import $axios from '@/api/controller';
+import UserList from './components/UserList';
 
 export default function User() {
 	const [userList, setUserList] = useState([]);
@@ -22,7 +23,7 @@ export default function User() {
 			) : (
 				<ul>
 					{userList.map((user) => (
-						<li key={user.id}>{user.name}</li>
+						<UserList key={user.id} user={user} />
 					))}
 				</ul>
 			)}
