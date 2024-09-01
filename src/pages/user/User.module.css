@@ -1,0 +1,9 @@
+.title {
+	@apply text-xl font-bold;
+}
+.link {
+	@apply bg-green-600 p-2 inline-flex hover:bg-opacity-70;
+}
+.loading {
+	@apply italic font-bold text-gray-500;
+}

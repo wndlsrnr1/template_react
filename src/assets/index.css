@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+	font-family: 'Pretendard';
+	src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+	font-weight: 400;
+	font-style: normal;
+}
+
+:root {
+	font-family: 'Pretendard';
+}
+
+/* 모달 */
+.modal_box_wrap::before {
+	background-color: rgba(0, 0, 0, 0.3);
+	z-index: 9999;
+	content: '';
+	inset: 0;
+	position: fixed;
+}
+.modal_box {
+	background-color: #fff;
+	border-radius: 10px;
+	position: fixed;
+	inset: 0;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 9999;
+	min-height: max-content;
+	padding: 30px;
+	max-height: 90vh;
+	overflow: auto;
+	scrollbar-width: none; /* Firefox에서 스크롤바 숨김 */
+	-ms-overflow-style: none; /* IE 및 Edge에서 스크롤바 숨김 */
+}
+.modal_box::-webkit-scrollbar {
+	display: none; /* Chrome, Safari에서 스크롤바 숨김 */
+}
+.modal_box400 {
+	width: 400px !important;
+}
+.modal_box520 {
+	width: 520px !important;
+}
+.modal_box800 {
+	width: 800px !important;
+}
+
+/* 버튼 */
+.blue_button {
+	@apply bg-primary rounded-md text-white hover:bg-primary/90 disabled:bg-[#CFD2D7] disabled:cursor-not-allowed;
+}
+.white_button {
+	@apply bg-white rounded-md text-black hover:bg-whiteHover disabled:bg-whiteHover disabled:cursor-not-allowed;
+}
+.gray_button {
+	@apply bg-gray-400 rounded-md text-white hover:bg-gray-400/90 disabled:bg-gray-400/90 disabled:cursor-not-allowed;
+}

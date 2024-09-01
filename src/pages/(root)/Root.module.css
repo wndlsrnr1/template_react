@@ -1,0 +1,6 @@
+.title {
+	@apply text-xl font-bold;
+}
+.link {
+	@apply bg-amber-400 p-2 inline-flex hover:bg-opacity-70;
+}

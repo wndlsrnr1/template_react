@@ -1,93 +1,60 @@
-# react-boilerplate-code
+# React 보일러 플레이트
 
+이 레포지토리는 실무 또는 개인 포트폴리오 생성 시 바로 가져다 세팅 할 수 있도록 만들어둔 React 보일러 플레이트 입니다.
 
+### 기본 세팅
 
-## Getting started
+-   `vite` 번들러 세팅 및
+-   `Rust`기반 `SWC`컴파일러 세팅
+-   `ESlint` + `Prettier` 세팅
+-   `@reduxjs/toolkit` 세팅
+-   `tailwindcss` 세팅
+-   `ModalFrame.jsx`컴포넌트를 기반으로 한 전역 모달 관리 틀 세팅
+-   `LoadingSpinner.jsx` 전역 로딩 스피너 세팅
+-   `@/api/controller.js`모듈 기반의 `axiosInstance`관리 세팅
+-   기본적으로 컴포넌트 및 페이지는 `*.jsx` + `*.module.css` 구조로 세팅
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+    **( \*.css사용시 스타일 중첩문제가 발생하여 \*.module.css로 작성 )**
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+-   선택적 `https`옵션 제공
+-   절대경로 `@` alias 제공
 
-## Add your files
+### `src/` 내부의 폴더요소
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+1. `api` - api들을 관리하는 폴더
 
-```
-cd existing_repo
-git remote add origin https://gitlab.com/ideaconcert-dev/react-boilerplate-code.git
-git branch -M main
-git push -uf origin main
-```
+    - `controller.js` - axios모듈들을 하나로 통합하는 파일
+    - `axiosInstance.js` - 전체적인 axios의 요청(request) 및 응답(response)을 세팅하는 파일
+    - `modules` - axios 모듈들을 관리하는 폴더
 
-## Integrate with your tools
+2. `assets` - 이미지, 폰트, json파일 등 정적파일들을 관리하는 폴더
 
-- [ ] [Set up project integrations](https://gitlab.com/ideaconcert-dev/react-boilerplate-code/-/settings/integrations)
+    - `index.css` - 프로젝트 전체에 적용할 css 스타일을 명시하는 파일
 
-## Collaborate with your team
+3. `components` - 최상위 `components`폴더는 프로젝트의 전반적인 라우트에서 빈번히 사용되는 컴포넌트(ex. 헤더, 푸터, 스피너, 모달 등)들을 관리하는 폴더
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+4. `pages` - route 폴더
 
-## Test and Deploy
+    - `index.jsx` - 프로젝트의 route들을 관리하는 파일
+    - `(root)` - / 페이지
 
-Use the built-in continuous integration in GitLab.
+5. `store` - 전역 상태 관리를 하는 폴더
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+    - `index.js` - reducer들을 모아놓은 store
+    - `reducers` - reducer들을 관리하는 폴더
 
-***
+6. `utils` - 각종 유틸 함수를 관리하는 폴더
 
-# Editing this README
+---
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+현재 세팅된 기능 및 폴더들을 활용해 더 빠르게 React 프로젝트 구축을 하면 됩니다.
 
-## Suggestions for a good README
+(사용된 라이브러리는 package.json 참조)
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+<br />
 
-## Name
-Choose a self-explaining name for your project.
+### 실행 방법
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+`npm i`
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+`npm run dev`
