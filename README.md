@@ -4,7 +4,7 @@
 
 ### 기본 세팅
 
--   `vite` 번들러 세팅 및
+-   `vite` 번들러 세팅
 -   `Rust`기반 `SWC`컴파일러 세팅
 -   `ESlint` + `Prettier` 세팅
 -   `@reduxjs/toolkit` 세팅
