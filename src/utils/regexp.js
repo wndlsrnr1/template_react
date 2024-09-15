@@ -3,7 +3,7 @@ export const validate = {
 	/**
 	 * ID 정규식 체크
 	 * 영문 6자 이상
-	 * @author taehyun
+	 * @author kyeongbeom
 	 * @param  {String} value 입력값
 	 */
 	checkId: (value) => {
@@ -14,7 +14,7 @@ export const validate = {
 	/**
 	 * PW 정규식 체크
 	 * 8~32자의 영문+숫자+특수문자
-	 * @author taehyun
+	 * @author kyeongbeom
 	 * @param  {String} value 입력값
 	 */
 	checkPw: (value) => {
@@ -25,7 +25,7 @@ export const validate = {
 	/**
 	 * EMAIL 정규식 체크
 	 * 이메일 형식
-	 * @author taehyun
+	 * @author kyeongbeom
 	 * @param  {String} value 입력값
 	 */
 	checkEmail: (value) => {
@@ -36,7 +36,7 @@ export const validate = {
 	/**
 	 * 전화번호 정규식 체크
 	 * 숫자만 11자리
-	 * @author taehyun
+	 * @author kyeongbeom
 	 * @param  {String} value 입력값
 	 */
 	checkPhone: (value) => {
@@ -47,7 +47,7 @@ export const validate = {
 	/**
 	 * 년도 정규식 체크
 	 * 숫자만 4자리
-	 * @author taehyun
+	 * @author kyeongbeom
 	 * @param  {String} value 입력값
 	 */
 	checkYear: (value) => {
@@ -58,7 +58,7 @@ export const validate = {
 	/**
 	 * 월 정규식 체크
 	 * 숫자만 두 자리
-	 * @author taehyun
+	 * @author kyeongbeom
 	 * @param  {String} value 입력값
 	 */
 	checkMonth: (value) => {

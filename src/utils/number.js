@@ -5,7 +5,7 @@
  * @param {Number} param.number - 입력숫자
  * @param {Number} param.gap - 콤마 간격(기본값 3)
  * @return {String}
- * @author sangheon
+ * @author kyeongbeom
  */
 export const changeCommaNumber = ({ number, gap = 3 }) => {
 	return number

@@ -1,6 +1,6 @@
 import axiosInstance from '@/api/axiosInstance';
 
-export default {
+const user = {
 	getUserList: () => {
 		return axiosInstance.get(`/users`);
 	},
@@ -8,3 +8,5 @@ export default {
 		return axiosInstance.get(`/users/${id}`);
 	},
 };
+
+export default user;

@@ -1,5 +1,7 @@
 import user from './modules/user';
 
-export default {
+const $axios = {
 	user,
 };
+
+export default $axios;
