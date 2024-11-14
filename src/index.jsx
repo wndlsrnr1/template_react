@@ -1,6 +1,6 @@
 import { StrictMode, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
-import Spinner from '@/components/spinner/LoadingSpinner/LoadingSpinner';
+import Spinner from '@/components/spinner/LoadingSpinner';
 import ModalFrame from '@/components/modal/ModalFrame';
 import { store } from '@/store';
 import { Provider } from 'react-redux';

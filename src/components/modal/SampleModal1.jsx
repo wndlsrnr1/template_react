@@ -1,16 +1,15 @@
 import { useDispatch } from 'react-redux';
-import { modalSetting } from '@/utils/modal';
-import { disableModal, setComponent } from '@/store/reducers/modal';
+import { popModal, pushModal } from '@/store/reducers/modal';
 
 export default function SampleModal1() {
 	const dispatch = useDispatch();
 
 	function closeModal() {
-		dispatch(disableModal());
+		dispatch(popModal());
 	}
 
 	function showModal() {
-		dispatch(setComponent(modalSetting.SampleModal2()));
+		dispatch(pushModal(import('@/components/modal/SampleModal2')));
 	}
 
 	return (

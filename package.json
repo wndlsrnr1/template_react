@@ -13,6 +13,7 @@
 		"@reduxjs/toolkit": "^2.2.7",
 		"autoprefixer": "^10.4.20",
 		"axios": "^1.7.5",
+		"crypto-js": "^4.2.0",
 		"dayjs": "^1.11.13",
 		"postcss": "^8.4.41",
 		"react": "^18.3.1",

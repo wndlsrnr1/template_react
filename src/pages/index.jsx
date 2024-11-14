@@ -1,7 +1,7 @@
 import { lazy } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
-const Root = lazy(() => import('@/pages/(root)/Root'));
-const User = lazy(() => import('@/pages/user/User'));
+const Root = lazy(() => import('@/pages/(root)'));
+const User = lazy(() => import('@/pages/user'));
 
 const router = createBrowserRouter([
 	{

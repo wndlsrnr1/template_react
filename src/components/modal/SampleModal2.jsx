@@ -1,11 +1,11 @@
 import { useDispatch } from 'react-redux';
-import { disableModal } from '@/store/reducers/modal';
+import { popModal } from '@/store/reducers/modal';
 
 function SampleModal() {
 	const dispatch = useDispatch();
 
 	function closeModal() {
-		dispatch(disableModal());
+		dispatch(popModal());
 	}
 
 	return (

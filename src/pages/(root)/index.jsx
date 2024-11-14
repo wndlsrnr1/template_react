@@ -1,7 +1,6 @@
-import styles from './Root.module.css';
+import styles from './index.module.css';
 import { useDispatch } from 'react-redux';
-import { setComponent } from '@/store/reducers/modal';
-import { modalSetting } from '@/utils/modal';
+import { pushModal } from '@/store/reducers/modal';
 import { activeSpinner } from '@/store/reducers/spinner';
 import { Link } from 'react-router-dom';
 
@@ -9,7 +8,7 @@ export default function Root() {
 	const dispatch = useDispatch();
 
 	function showSampleModal() {
-		dispatch(setComponent(modalSetting.SampleModal()));
+		dispatch(pushModal(import('@/components/modal/SampleModal1')));
 	}
 
 	function showSpinner() {

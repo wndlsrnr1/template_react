@@ -22,25 +22,24 @@ const modalSlice = createSlice({
 		},
 
 		/**
-		 * 모달 제거
+		 * 모달 제거 - pop()
 		 * @author kyeongbeom
 		 */
-		disableModal: (state) => {
+		popModal: (state) => {
 			state.modalList.pop();
 		},
 
 		/**
-		 * 모달 셋팅
+		 * 모달 추가 - push()
 		 * @author kyeongbeom
 		 */
-		setComponent: (state, action) => {
-			console.log(action.payload);
+		pushModal: (state, action) => {
 			state.modalList.push(action.payload);
 		},
 	},
 });
 
 // Action creators are generated for each case reducer function
-export const { $reset, disableModal, setComponent } = modalSlice.actions;
+export const { $reset, popModal, pushModal } = modalSlice.actions;
 
 export default modalSlice.reducer;

@@ -1,8 +1,8 @@
-import styles from './User.module.css';
+import styles from './index.module.css';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import $axios from '@/api/controller';
-import UserList from './components/userList/UserList';
+import UserList from './components/userList';
 
 export default function User() {
 	const [userList, setUserList] = useState([]);

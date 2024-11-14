@@ -1,6 +1,6 @@
 import { lazy, Suspense, memo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { disableModal } from '@/store/reducers/modal';
+import { popModal } from '@/store/reducers/modal';
 
 export default memo(function ModalFrame() {
 	const modalStore = useSelector((state) => state.modal);
@@ -8,16 +8,16 @@ export default memo(function ModalFrame() {
 
 	const { modalList } = modalStore;
 
-	function disableModalWrap(e) {
+	function popModalWrap(e) {
 		if (e.target === e.currentTarget) {
-			dispatch(disableModal());
+			dispatch(popModal());
 		}
 	}
 
 	return (
 		<>
 			{modalList.map((modal, index) => (
-				<div key={index} className="modal_box_wrap" onMouseDown={disableModalWrap}>
+				<div key={index} className="modal_box_wrap" onMouseDown={popModalWrap}>
 					<Suspense>
 						{(() => {
 							const Modal = lazy(() => modal);
