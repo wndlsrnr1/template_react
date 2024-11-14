@@ -1,4 +1,4 @@
-import CryptoJS from 'crypto-js';
+import CryptoJS from "crypto-js";
 
 const crypto = {
   /**
@@ -19,7 +19,7 @@ const crypto = {
    */
   decrypt: (encrypt) => {
     return CryptoJS.AES.decrypt(encrypt, import.meta.env.VITE_AES_KEY).toString(
-      CryptoJS.enc.Utf8
+      CryptoJS.enc.Utf8,
     );
   },
 };

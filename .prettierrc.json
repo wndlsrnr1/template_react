@@ -7,9 +7,9 @@
   "proseWrap": "preserve",
   "semi": true,
   "singleAttributePerLine": false,
-  "singleQuote": true,
+  "singleQuote": false,
   "tabWidth": 2,
-  "trailingComma": "es5",
+  "trailingComma": "all",
   "useTabs": false,
   "printWidth": 80,
   "vueIndentScriptAndStyle": false

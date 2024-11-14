@@ -2,6 +2,8 @@
 
 이 레포지토리는 실무 또는 개인 포트폴리오 생성 시 바로 가져다 세팅 할 수 있도록 만들어둔 React 보일러 플레이트 입니다.
 
++디렉토리 구조는 `Next.js`와 비슷하게 세팅
+
 ### 기본 세팅
 
 - `vite` 번들러 세팅
@@ -9,10 +11,11 @@
 - `ESlint` + `Prettier` 세팅
 - `@reduxjs/toolkit` 세팅
 - `tailwindcss` 세팅
+- `lazy`문법을 사용한 라우트 처리
 - `ModalFrame.jsx`컴포넌트를 기반으로 한 전역 모달 관리 틀 세팅
 - `LoadingSpinner.jsx` 전역 로딩 스피너 세팅
 - `@/api/controller.js`모듈 기반의 `axiosInstance`관리 세팅
-- 기본적으로 컴포넌트 및 페이지는 `*.jsx` + `*.module.css` 구조로 세팅
+- 컴포넌트 및 페이지의 개별 css 파일은 필요시 `*.module.css` 로 작성
 
   **( \*.css사용시 스타일 중첩문제가 발생하여 \*.module.css로 작성 )**
 

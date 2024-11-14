@@ -10,17 +10,17 @@
 export const changeCommaNumber = ({ number, gap = 3 }) => {
   return number
     .toString()
-    .split('')
+    .split("")
     .reverse()
     .map((ele, index) => {
       if (index % gap === 0 && index !== 0) {
-        return ele + ',';
+        return ele + ",";
       } else {
         return ele;
       }
     })
     .reverse()
-    .join('');
+    .join("");
 };
 
 /**
@@ -33,9 +33,9 @@ export const changeCommaNumber = ({ number, gap = 3 }) => {
  * @author kyeongbeom
  */
 export function formatNumber({ number, length = 5 }) {
-  let wordArr = number.toString().split('');
+  let wordArr = number.toString().split("");
   while (wordArr.length < length) {
-    wordArr.unshift('0');
+    wordArr.unshift("0");
   }
-  return wordArr.join('');
+  return wordArr.join("");
 }

@@ -3,44 +3,38 @@
 @tailwind utilities;
 
 @font-face {
-  font-family: 'Pretendard';
-  src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff')
-    format('woff');
+  font-family: "Pretendard";
+  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff")
+    format("woff");
   font-weight: 400;
   font-style: normal;
 }
 
 :root {
-  font-family: 'Pretendard';
+  font-family: "Pretendard";
+  font-size: 16px;
 }
 
 /* 모달 */
-.modal_box_wrap::before {
-  background-color: rgba(0, 0, 0, 0.3);
+.modal_box_wrap {
+  /* background-color: rgba(0, 0, 0, 0.3); */
+  background-color: #8080808c;
   z-index: 9999;
-  content: '';
   inset: 0;
   position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .modal_box {
-  background-color: #fff;
-  border-radius: 10px;
-  position: fixed;
-  inset: 0;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 9999;
-  min-height: max-content;
-  padding: 30px;
-  max-height: 90vh;
-  overflow: auto;
+  @apply w-[345px] max-w-[calc(100vw-30px)] px-5 py-6 bg-white rounded-[20px] flex flex-col animate-scale max-h-[90vh];
   scrollbar-width: none; /* Firefox에서 스크롤바 숨김 */
   -ms-overflow-style: none; /* IE 및 Edge에서 스크롤바 숨김 */
 }
 .modal_box::-webkit-scrollbar {
   display: none; /* Chrome, Safari에서 스크롤바 숨김 */
 }
+
 .modal_box400 {
   width: 400px !important;
 }

@@ -1,5 +1,5 @@
-import { useDispatch } from 'react-redux';
-import { popModal } from '@/store/reducers/modal';
+import { useDispatch } from "react-redux";
+import { popModal } from "@/store/reducers/modal";
 
 function SampleModal() {
   const dispatch = useDispatch();

@@ -1,6 +1,6 @@
-import styles from './LoadingSpinner.module.css';
-import main_logo from '@/assets/images/fullip_logo.png';
-import { useSelector } from 'react-redux';
+import styles from "./LoadingSpinner.module.css";
+import main_logo from "@/assets/images/fullip_logo.png";
+import { useSelector } from "react-redux";
 
 function LoadingSpinner() {
   const spinnerStore = useSelector((state) => state.spinner);

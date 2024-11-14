@@ -1,6 +1,6 @@
-import { configureStore } from '@reduxjs/toolkit';
-import modal from './reducers/modal';
-import spinner from './reducers/spinner';
+import { configureStore } from "@reduxjs/toolkit";
+import modal from "./reducers/modal";
+import spinner from "./reducers/spinner";
 
 export const store = configureStore({
   reducer: {

@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   /**
@@ -10,7 +10,7 @@ const initialState = {
 };
 
 const spinnerSlice = createSlice({
-  name: 'spinner',
+  name: "spinner",
   initialState,
   reducers: {
     /**

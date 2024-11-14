@@ -1,4 +1,4 @@
-import sanitizeHtml from 'sanitize-html';
+import sanitizeHtml from "sanitize-html";
 
 /**
  * HTML 마크업을 xss공격을 방지하기 위해 sanitize해주는 함수

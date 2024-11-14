@@ -1,14 +1,14 @@
-import styles from './index.module.css';
-import { useDispatch } from 'react-redux';
-import { pushModal } from '@/store/reducers/modal';
-import { activeSpinner } from '@/store/reducers/spinner';
-import { Link } from 'react-router-dom';
+import styles from "./index.module.css";
+import { useDispatch } from "react-redux";
+import { pushModal } from "@/store/reducers/modal";
+import { activeSpinner } from "@/store/reducers/spinner";
+import { Link } from "react-router-dom";
 
 export default function Root() {
   const dispatch = useDispatch();
 
   function showSampleModal() {
-    dispatch(pushModal(import('@/components/modal/SampleModal1')));
+    dispatch(pushModal(import("@/components/modal/SampleModal1")));
   }
 
   function showSpinner() {
@@ -25,7 +25,7 @@ export default function Root() {
           스피너
         </button>
       </div>
-      <Link to={'/user'} className={styles.link}>
+      <Link to={"/user"} className={styles.link}>
         go to /user
       </Link>
     </div>

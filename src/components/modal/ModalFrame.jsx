@@ -1,6 +1,6 @@
-import { lazy, Suspense, memo } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { popModal } from '@/store/reducers/modal';
+import { lazy, Suspense, memo } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { popModal } from "@/store/reducers/modal";
 
 export default memo(function ModalFrame() {
   const modalStore = useSelector((state) => state.modal);

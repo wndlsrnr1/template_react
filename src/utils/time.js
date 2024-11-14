@@ -1,4 +1,4 @@
-import dayjs from 'dayjs';
+import dayjs from "dayjs";
 
 // 시간 및 날짜 관련 모듈
 export const time = {
@@ -32,7 +32,7 @@ export const time = {
    * @returns 해당 날짜 값 중 '년도' 값 반환
    */
   getYear: (time) => {
-    return dayjs(time).get('year');
+    return dayjs(time).get("year");
   },
 
   /**
@@ -43,7 +43,7 @@ export const time = {
    * @returns 해당 날짜 값 중 '월' 값 반환
    */
   getMonth: (time) => {
-    return dayjs(time).get('month') + 1;
+    return dayjs(time).get("month") + 1;
   },
 
   /**
@@ -54,7 +54,7 @@ export const time = {
    * @returns 해당 날짜 값 중 '일' 값 반환
    */
   getDate: (time) => {
-    return dayjs(time).get('date');
+    return dayjs(time).get("date");
   },
 
   /**
@@ -65,9 +65,9 @@ export const time = {
    * @author kyeongbeom
    */
   getKoDay: (time) => {
-    const dateList = ['일', '월', '화', '수', '목', '금', '토'];
+    const dateList = ["일", "월", "화", "수", "목", "금", "토"];
 
-    return dateList[dayjs(time).get('day')];
+    return dateList[dayjs(time).get("day")];
   },
 
   /**
@@ -78,7 +78,7 @@ export const time = {
    * @returns 해당 날짜 값 중 요일 값 반환 (일:0 ~ 토:6)
    */
   getDay: (time) => {
-    return dayjs(time).get('day');
+    return dayjs(time).get("day");
   },
 
   /**
@@ -89,7 +89,7 @@ export const time = {
    * @returns 해당 날짜 값 중 '시간' 값 반환
    */
   getHour: (time) => {
-    return dayjs(time).get('hour');
+    return dayjs(time).get("hour");
   },
 
   /**
@@ -100,7 +100,7 @@ export const time = {
    * @returns 해당 날짜 값 중 '분' 값 반환
    */
   getMinute: (time) => {
-    return dayjs(time).get('minute');
+    return dayjs(time).get("minute");
   },
 
   /**
@@ -111,7 +111,7 @@ export const time = {
    * @returns 해당 날짜 값 중 '초'
    */
   getSecond: (time) => {
-    return dayjs(time).get('second');
+    return dayjs(time).get("second");
   },
 
   /**
@@ -125,17 +125,17 @@ export const time = {
   getdiffTime: (time1, time2) => {
     let t1 = dayjs(time1);
     let t2 = dayjs(time2);
-    t1.format('YYYY-MM-DD HH:mm:ss');
-    t2.format('YYYY-MM-DD HH:mm:ss');
+    t1.format("YYYY-MM-DD HH:mm:ss");
+    t2.format("YYYY-MM-DD HH:mm:ss");
 
     const response = {
-      year: t1.diff(t2, 'year'),
-      month: t1.diff(t2, 'month'),
-      week: t1.diff(t2, 'week'),
-      day: t1.diff(t2, 'day'),
-      hour: t1.diff(t2, 'hour'),
-      minute: t1.diff(t2, 'minute'),
-      second: t1.diff(t2, 'second'),
+      year: t1.diff(t2, "year"),
+      month: t1.diff(t2, "month"),
+      week: t1.diff(t2, "week"),
+      day: t1.diff(t2, "day"),
+      hour: t1.diff(t2, "hour"),
+      minute: t1.diff(t2, "minute"),
+      second: t1.diff(t2, "second"),
     };
 
     return response;
@@ -178,13 +178,13 @@ export const time = {
   formatHHmmss: (seconds) => {
     const h = Math.floor(seconds / 3600)
       .toString()
-      .padStart(2, '0');
+      .padStart(2, "0");
     const m = Math.floor((seconds % 3600) / 60)
       .toString()
-      .padStart(2, '0');
+      .padStart(2, "0");
     const s = Math.floor(seconds % 60)
       .toString()
-      .padStart(2, '0');
+      .padStart(2, "0");
     return `${h}:${m}:${s}`;
   },
 };
