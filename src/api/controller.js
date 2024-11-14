@@ -1,7 +1,7 @@
 import user from './modules/user';
 
 const $axios = {
-	user,
+  user,
 };
 
 export default $axios;

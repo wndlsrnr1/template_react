@@ -9,13 +9,13 @@ import router from './pages/index';
 import '@/assets/index.css';
 
 createRoot(document.getElementById('root')).render(
-	<StrictMode>
-		<Provider store={store}>
-			<Suspense>
-				<RouterProvider router={router} />
-			</Suspense>
-			<ModalFrame />
-			<Spinner />
-		</Provider>
-	</StrictMode>,
+  <StrictMode>
+    <Provider store={store}>
+      <Suspense>
+        <RouterProvider router={router} />
+      </Suspense>
+      <ModalFrame />
+      <Spinner />
+    </Provider>
+  </StrictMode>
 );

@@ -3,13 +3,13 @@ import modal from './reducers/modal';
 import spinner from './reducers/spinner';
 
 export const store = configureStore({
-	reducer: {
-		modal,
-		spinner,
-	},
+  reducer: {
+    modal,
+    spinner,
+  },
 
-	middleware: (getDefaultMiddleware) =>
-		getDefaultMiddleware({
-			serializableCheck: false,
-		}),
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
 });

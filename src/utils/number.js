@@ -8,19 +8,19 @@
  * @author kyeongbeom
  */
 export const changeCommaNumber = ({ number, gap = 3 }) => {
-	return number
-		.toString()
-		.split('')
-		.reverse()
-		.map((ele, index) => {
-			if (index % gap === 0 && index !== 0) {
-				return ele + ',';
-			} else {
-				return ele;
-			}
-		})
-		.reverse()
-		.join('');
+  return number
+    .toString()
+    .split('')
+    .reverse()
+    .map((ele, index) => {
+      if (index % gap === 0 && index !== 0) {
+        return ele + ',';
+      } else {
+        return ele;
+      }
+    })
+    .reverse()
+    .join('');
 };
 
 /**
@@ -33,9 +33,9 @@ export const changeCommaNumber = ({ number, gap = 3 }) => {
  * @author kyeongbeom
  */
 export function formatNumber({ number, length = 5 }) {
-	let wordArr = number.toString().split('');
-	while (wordArr.length < length) {
-		wordArr.unshift('0');
-	}
-	return wordArr.join('');
+  let wordArr = number.toString().split('');
+  while (wordArr.length < length) {
+    wordArr.unshift('0');
+  }
+  return wordArr.join('');
 }

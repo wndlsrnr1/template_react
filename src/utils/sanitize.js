@@ -8,5 +8,5 @@ import sanitizeHtml from 'sanitize-html';
  * @author kyeongbeom
  */
 export const sanitize = (html) => {
-	return sanitizeHtml(html);
+  return sanitizeHtml(html);
 };
