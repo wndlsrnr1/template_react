@@ -1,6 +1,11 @@
+@import "tailwindcss";
+
 .title {
-  @apply text-xl font-bold;
+  @apply text-lg font-bold;
 }
 .link {
-  @apply bg-amber-400 p-2 inline-flex hover:bg-opacity-70;
+  @apply bg-amber-400 p-2 inline-flex;
+  @variant hover {
+    @apply bg-amber-400/70;
+  }
 }
