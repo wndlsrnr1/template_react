@@ -10,7 +10,7 @@
     "baseUrl": ".",
     // @ 경로 설정
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     }
   },
   "exclude": ["node_modules", "**/node_modules/*", "dist"]

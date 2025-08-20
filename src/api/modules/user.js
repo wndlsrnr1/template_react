@@ -5,8 +5,8 @@ const user = {
     return {
       queryKey: ["users"],
       queryFn: async () => {
-        const response = await axiosInstance.get(`/users`);
-        return response.data;
+        const { data } = await axiosInstance.get(`/users`);
+        return data;
       },
     };
   },
