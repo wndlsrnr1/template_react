@@ -6,12 +6,12 @@
 
 ### 기본 세팅
 
-- `vite` 번들러 세팅
-- `Rust`기반 `SWC`컴파일러 세팅
+- `vite` 세팅
 - `ESlint` + `Prettier` 세팅
 - `@reduxjs/toolkit` 세팅
+- `swr` 세팅
 - `tailwindcss` 세팅
-- `lazy`문법을 사용한 라우트 처리
+- `lazy`문법을 사용한 라우트 스플리팅 처리
 - `ModalFrame.jsx`컴포넌트를 기반으로 한 전역 모달 관리 틀 세팅
 - `LoadingSpinner.jsx` 전역 로딩 스피너 세팅
 - `@/api/controller.js`모듈 기반의 `axiosInstance`관리 세팅
