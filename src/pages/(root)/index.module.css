@@ -1,0 +1,9 @@
+.title {
+  @apply text-lg font-bold;
+}
+.link {
+  @apply bg-amber-400 p-2 inline-flex;
+  @variant hover {
+    @apply bg-amber-400/70;
+  }
+}

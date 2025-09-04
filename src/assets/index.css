@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #4880ff;
+  --color-logo-color: #ffb617;
+  --color-white-hover: #f3f4f6;
+
+  --animate-fade: fade 0.3s ease-in;
+  --animate-scale: scale 0.2s ease-in;
+
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes scale {
+    from {
+      transform: scale(0.9);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+}
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 20px;
+  @apply min-w-[theme(--breakpoint-lg)];
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff")
+    format("woff");
+  font-weight: 400;
+  font-style: normal;
+}
+
+:root {
+  font-family: "Pretendard";
+  font-size: 16px;
+}
+
+/* 모달 */
+.modal_box_wrap {
+  /* background-color: rgba(0, 0, 0, 0.3); */
+  background-color: #8080808c;
+  z-index: 9999;
+  inset: 0;
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.modal_box {
+  @apply w-[345px] max-w-[calc(100vw-30px)] px-5 py-6 bg-white rounded-[20px] flex flex-col animate-scale max-h-[90vh];
+  scrollbar-width: none; /* Firefox에서 스크롤바 숨김 */
+  -ms-overflow-style: none; /* IE 및 Edge에서 스크롤바 숨김 */
+}
+.modal_box::-webkit-scrollbar {
+  display: none; /* Chrome, Safari에서 스크롤바 숨김 */
+}
+
+.modal_box400 {
+  width: 400px !important;
+}
+.modal_box520 {
+  width: 520px !important;
+}
+.modal_box800 {
+  width: 800px !important;
+}
+
+/* 버튼 */
+.blue_button {
+  @apply bg-primary rounded-md text-white;
+  @variant hover {
+    @apply bg-primary/90;
+  }
+  @variant disabled {
+    @apply bg-[#CFD2D7] cursor-not-allowed;
+  }
+}
+.white_button {
+  @apply bg-white rounded-md text-black;
+  @variant hover {
+    @apply bg-white-hover;
+  }
+  @variant disabled {
+    @apply bg-white-hover cursor-not-allowed;
+  }
+}
+.gray_button {
+  @apply bg-gray-400 rounded-md text-white;
+  @variant hover {
+    @apply bg-gray-400/90;
+  }
+  @variant disabled {
+    @apply bg-gray-400/90 cursor-not-allowed;
+  }
+}
