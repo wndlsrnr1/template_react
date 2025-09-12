@@ -1,3 +1,5 @@
+@reference "tailwindcss";
+
 .title {
   @apply text-xl font-bold;
 }
