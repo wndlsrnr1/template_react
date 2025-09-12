@@ -27,10 +27,7 @@ createRoot(document.getElementById("root")).render(
         </Suspense>
         <ModalFrame />
         <Spinner />
-        <ReactQueryDevtools
-          initialIsOpen={false}
-          buttonPosition="bottom-right"
-        />
+        <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-right" />
       </QueryClientProvider>
     </Provider>
   </StrictMode>,

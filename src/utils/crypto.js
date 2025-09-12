@@ -18,9 +18,7 @@ const crypto = {
    * @author kyeongbeom
    */
   decrypt: (encrypt) => {
-    return CryptoJS.AES.decrypt(encrypt, import.meta.env.VITE_AES_KEY).toString(
-      CryptoJS.enc.Utf8,
-    );
+    return CryptoJS.AES.decrypt(encrypt, import.meta.env.VITE_AES_KEY).toString(CryptoJS.enc.Utf8);
   },
 };
 

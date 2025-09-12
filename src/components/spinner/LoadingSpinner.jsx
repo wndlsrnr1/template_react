@@ -9,12 +9,7 @@ function LoadingSpinner() {
     <>
       {spinnerStore.isLoading === true && (
         <div className={styles.background}>
-          <img
-            className={styles.spinner}
-            src={main_logo}
-            alt="main_logo"
-            width={40}
-          />
+          <img className={styles.spinner} src={main_logo} alt="main_logo" width={40} />
         </div>
       )}
     </>

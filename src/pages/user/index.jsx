@@ -5,12 +5,7 @@ import UserList from "./components/UserList";
 import { useQuery } from "@tanstack/react-query";
 
 export default function User() {
-  const {
-    data: userList = [],
-    isLoading,
-    isError,
-    error,
-  } = useQuery($axios.user.getUserList());
+  const { data: userList = [], isLoading, isError, error } = useQuery($axios.user.getUserList());
 
   return (
     <div>
@@ -18,9 +13,7 @@ export default function User() {
       {isLoading ? (
         <p className={styles.loading}>Loading...</p>
       ) : isError ? (
-        <p className={styles.loading}>
-          {error?.message ?? "에러가 발생했어요."}
-        </p>
+        <p className={styles.loading}>{error?.message ?? "에러가 발생했어요."}</p>
       ) : (
         <ul>
           {userList.map((user) => (
