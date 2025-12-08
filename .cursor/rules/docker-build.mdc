@@ -1,0 +1,199 @@
+---
+description: Docker build & individual service execution — local runs, image building, model weight handling, and safe Docker practices for backend/ai_server
+globs: **/Dockerfile, **/docker-compose.yml, **/envs/*.env, **/requirements*.txt
+alwaysApply: false
+---
+
+## Core Principles
+
+- **Incremental verification**: Test each service independently before integration
+- **Health check first**: Verify service health before proceeding to next step
+- **No destructive commands**: Avoid commands that cannot be rolled back (`docker system prune -a`, `rm -rf /`, `docker-compose down -v` without explicit need)
+- **Model weights external**: Mount or cache model weights; never bake them into Docker images
+- **Wrap before refactor**: Migrate legacy code by wrapping, then refactor only after tests pass
+- **Layered architecture**: Follow View → Service → Repository → Model pattern
+- **Service communication via HTTP**: AI processing must go through the HTTP client, not direct imports
+
+### Building Workflow
+
+```
+Individual Service Execution → Docker Image Build → Service Health Check → docker-compose Integration → Full System Health Check → Service Communication Verification → Logic Migration → Integration Testing
+```
+
+## Phase 1: Individual Service Execution (Local)
+
+### Backend Service
+
+```bash
+# 1. Navigate to backend directory
+cd /home/jik/projects/kotlip/backend
+
+# 2. Activate virtual environment (if using)
+source venv/bin/activate  # or your venv path
+
+# 3. Install dependencies
+pip install -r requirements.txt
+
+# 4. Set environment variables (use envs/backend.env as reference)
+export DJANGO_SETTINGS_MODULE=config.settings
+export DB_HOST=localhost
+export DB_NAME=kotlip
+export DB_USER=kotlip
+export DB_PASSWORD=your_password
+export REDIS_HOST=localhost
+export REDIS_PORT=6379
+export REDIS_DB=0
+export CELERY_BROKER_URL=redis://localhost:6379/1
+export CELERY_RESULT_BACKEND=redis://localhost:6379/2
+export AI_SERVER_URL=http://localhost:8001
+# ... (other required env vars)
+
+# 5. Run database migrations
+python manage.py migrate
+
+# 6. Start development server
+python manage.py runserver 0.0.0.0:8000
+
+# 7. Verify health endpoint
+curl http://localhost:8000/health/
+```
+
+**Expected result**: HTTP 200 with JSON indicating DB and Redis connectivity.
+
+### AI Server Service
+
+```bash
+# 1. Navigate to ai_server directory
+cd /home/jik/projects/kotlip/ai_server
+
+# 2. Activate virtual environment
+source venv/bin/activate
+
+# 3. Install dependencies
+pip install -r requirements.txt
+
+# 4. Set environment variables (use envs/ai.env as reference)
+export MEDIA_ROOT=/shared/media
+export MODEL_BASE_DIR=/app
+export RBLN_WEIGHTS_DIR=/app/ai_model/models/enhancer/rbln_weights
+export REDIS_HOST=localhost
+export REDIS_PORT=6379
+export REDIS_DB=0
+# ... (other required env vars)
+
+# 5. Start FastAPI server
+uvicorn app.main:app --host 0.0.0.0 --port 8001
+
+# 6. Verify health endpoint
+curl http://localhost:8001/health
+```
+
+**Expected result**: HTTP 200 with JSON showing AI server readiness.
+
+**Note**: Ensure model weights are accessible via mounted path (not in image). For local testing, verify model files are available at expected paths.
+
+## Phase 2: Docker Image Build
+
+### Backend Image
+
+```bash
+# 1. Navigate to project root
+cd /home/jik/projects/kotlip
+
+# 2. Build backend image
+docker build -t kotlip-backend:latest ./backend
+
+# 3. Verify image creation
+docker images | grep kotlip-backend
+
+# 4. Test image with minimal run
+docker run --rm \
+  --env-file ./envs/backend.env \
+  -e DB_HOST=host.docker.internal \
+  kotlip-backend:latest \
+  python manage.py check
+```
+
+**Expected result**: Django system check passes without errors.
+
+### AI Server Image
+
+```bash
+# 1. Build AI server image
+docker build -t kotlip-ai:latest ./ai_server
+
+# 2. Verify image creation
+docker images | grep kotlip-ai
+
+# 3. Test image (model weights must be mounted)
+docker run --rm \
+  --env-file ./envs/ai.env \
+  -v ./backend_and_ai/ai_model/models:/app/ai_model/models:ro \
+  kotlip-ai:latest \
+  python -c "from app.main import app; print('AI server imports OK')"
+```
+
+**Expected result**: No import errors. Model weights are read-only mounted from host.
+
+**Critical**: Model weights must be mounted as read-only (`:ro`). Never include model weights in Docker image layers.
+
+## Model Weights Management
+
+### Critical Principle
+
+**Model weights must remain external to Docker images.**
+
+#### Correct Pattern
+
+```yaml
+# docker-compose.yml
+services:
+  ai:
+    volumes:
+      - ./backend_and_ai/ai_model/models:/app/ai_model/models:ro  # Read-only mount
+      - media_data:/shared/media
+    environment:
+      MODEL_BASE_DIR: /app
+      RBLN_WEIGHTS_DIR: /app/ai_model/models/enhancer/rbln_weights
+```
+
+#### Incorrect Pattern (DO NOT DO THIS)
+
+```dockerfile
+# Dockerfile - DO NOT COPY model weights into image
+# COPY ./ai_model/models /app/ai_model/models  # BAD: Increases image size dramatically
+```
+
+### Model Weights Best Practices
+
+1. **Development/Local**: Host path bind mount + read-only (RO)
+2. **Staging/Production**: Object storage (S3/MinIO) → sync on startup → container internal cache
+3. **Node local cache**: Shared cache path on GPU nodes for multiple containers
+4. **Version management**: Model version tagging + checksum verification
+5. **Security**: Default to read-only mounts; inject credentials at runtime (ENV/Secrets)
+
+## Prohibited Commands
+
+### Never Use These Commands
+
+**These commands are destructive and cannot be rolled back**:
+
+- `docker system prune -a` (removes all unused images, containers, networks)
+- `docker volume prune` (removes all unused volumes)
+- `rm -rf /` or similar destructive file operations
+- `docker-compose down -v` (removes volumes, losing data) — only use when explicitly needed for cleanup
+- Any command that modifies production data without backup
+- Commands that delete model weights or media files without backup
+
+### Safe Alternatives
+
+```bash
+# Safe: Only removes dangling images
+docker image prune
+
+# Safe: Remove specific unused images
+docker rmi <image_id>
+
+# Safe: Clean up build cache
+docker builder prune
+```

@@ -1,0 +1,389 @@
+---
+description: Service communication verification — Redis Pub/Sub, media server, HTTP protocol between services
+globs: **/config/ai_client.py, **/routers/**/*.py, **/views.py
+alwaysApply: false
+---
+
+## Service Communication Verification (Service Separation Context)
+
+This guide covers verifying communication between separated services (backend, ai_server, media_server, redis) after successful build.
+
+### Core Principles
+
+- **Verify before migration**: Ensure service-to-service communication works before migrating logic
+- **Test each protocol separately**: Redis, HTTP, Media Server access
+- **Check both directions**: Backend → AI Server, AI Server → Backend (if needed)
+- **Network isolation**: Services communicate via docker-compose network, not localhost
+
+### Communication Matrix
+
+| From | To | Protocol | Purpose |
+|------|-----|----------|---------|
+| Backend | AI Server | HTTP | AI processing requests |
+| Backend | Redis | Redis Protocol | Cache, session, Celery broker |
+| AI Server | Redis | Redis Protocol | Task status, Pub/Sub |
+| Backend | Media Server | Samba/HTTP | File upload/download |
+| AI Server | Media Server | Samba/HTTP | Read input files, write output files |
+
+### Phase 1: Redis Communication Verification
+
+#### Redis DB Separation
+
+Redis uses logical database separation:
+- **DB 0**: Cache/Session (backend, celery_worker_backend)
+- **DB 1**: Celery Broker
+- **DB 2**: Celery Result Backend
+
+#### Backend → Redis (DB 0: Cache/Session)
+
+```bash
+# 1. Start services
+docker-compose up -d
+
+# 2. Test Redis connection from backend
+docker-compose exec backend python -c "
+import redis
+r = redis.Redis(host='redis', port=6379, db=0)
+print('Redis DB 0 ping:', r.ping())
+r.set('test_key', 'test_value', ex=10)
+print('Redis DB 0 get:', r.get('test_key'))
+"
+
+# 3. Test Django cache backend
+docker-compose exec backend python manage.py shell -c "
+from django.core.cache import cache
+cache.set('django_test', 'value', 10)
+print('Django cache get:', cache.get('django_test'))
+"
+```
+
+**Expected result**: Both Redis direct access and Django cache work correctly.
+
+#### Backend → Redis (DB 1: Celery Broker)
+
+```bash
+# Test Celery broker connection
+docker-compose exec backend python -c "
+from celery import Celery
+from config import settings
+app = Celery('config')
+app.config_from_object('django.conf:settings', namespace='CELERY')
+print('Celery broker URL:', app.conf.broker_url)
+print('Celery broker ping:', app.control.inspect().ping())
+"
+```
+
+**Expected result**: Celery broker connection successful.
+
+#### AI Server → Redis (DB 0: Task Status)
+
+```bash
+# Test Redis connection from AI server
+docker-compose exec ai python -c "
+import redis
+r = redis.Redis(host='redis', port=6379, db=0)
+print('AI Server Redis ping:', r.ping())
+r.set('ai_test_key', 'ai_test_value', ex=10)
+print('AI Server Redis get:', r.get('ai_test_key'))
+"
+```
+
+**Expected result**: AI server can connect to Redis.
+
+#### Redis Pub/Sub (Future: SSE Status Updates)
+
+```bash
+# Test Redis Pub/Sub (for future SSE implementation)
+docker-compose exec backend python -c "
+import redis
+r = redis.Redis(host='redis', port=6379, db=0)
+pubsub = r.pubsub()
+pubsub.subscribe('test_channel')
+r.publish('test_channel', 'test_message')
+message = pubsub.get_message(timeout=1)
+print('Pub/Sub message:', message)
+"
+```
+
+**Expected result**: Pub/Sub message received (for future SSE implementation).
+
+### Phase 2: HTTP Communication Verification
+
+#### Backend → AI Server (HTTP Client)
+
+```bash
+# 1. Test AI client initialization
+docker-compose exec backend python manage.py shell -c "
+from config.ai_client import get_ai_client
+client = get_ai_client()
+print('AI client base URL:', client.base_url)
+print('AI client timeout:', client.timeout)
+"
+
+# 2. Test AI server health check via HTTP client
+docker-compose exec backend python manage.py shell -c "
+from config.ai_client import get_ai_client
+import requests
+client = get_ai_client()
+try:
+    response = requests.get(f'{client.base_url}/health', timeout=5)
+    print('AI server health status:', response.status_code)
+    print('AI server health response:', response.json())
+except Exception as e:
+    print('AI server health check failed:', str(e))
+"
+```
+
+**Expected result**: HTTP 200 with JSON response from AI server.
+
+#### AI Server Endpoint Verification
+
+```bash
+# 1. Test video processing endpoint (synchronous)
+docker-compose exec backend python -c "
+import requests
+import json
+response = requests.get('http://ai:8001/health', timeout=5)
+print('Health check:', response.status_code, response.json())
+"
+
+# 2. Test image enhancement endpoint availability
+docker-compose exec backend python -c "
+import requests
+# Just check if endpoint exists (don't send actual image)
+try:
+    response = requests.post('http://ai:8001/ai/v1/image/enhance/', 
+                           json={}, timeout=5)
+    print('Image enhance endpoint status:', response.status_code)
+except requests.exceptions.RequestException as e:
+    print('Endpoint check (expected 422 for empty request):', type(e).__name__)
+"
+```
+
+**Expected result**: Endpoints are accessible (422 for validation errors is expected).
+
+#### HTTP Error Handling and Retry Logic
+
+```bash
+# Test retry logic (simulate temporary failure)
+docker-compose exec backend python manage.py shell -c "
+from config.ai_client import get_ai_client
+import time
+
+client = get_ai_client()
+# Test timeout handling
+print('Testing timeout (30s for async, 3600s for sync)')
+print('Async timeout:', getattr(client, 'async_timeout', 'N/A'))
+print('Sync timeout:', getattr(client, 'timeout', 'N/A'))
+"
+```
+
+**Expected result**: Timeout values are correctly configured.
+
+### Phase 3: Media Server Communication Verification
+
+#### Backend → Media Server (Samba)
+
+```bash
+# 1. Test media server connectivity
+docker-compose exec backend ls -la /app/media
+
+# 2. Test file write to media server
+docker-compose exec backend bash -c "
+echo 'test content' > /app/media/test_file.txt
+cat /app/media/test_file.txt
+rm /app/media/test_file.txt
+"
+
+# 3. Test Django media file serving
+docker-compose exec backend python manage.py shell -c "
+from django.core.files.storage import default_storage
+test_file = default_storage.save('test_upload.txt', 
+                                  content=b'test content')
+print('File saved:', test_file)
+print('File exists:', default_storage.exists(test_file))
+default_storage.delete(test_file)
+"
+```
+
+**Expected result**: Files can be written and read from media server.
+
+#### AI Server → Media Server (Samba)
+
+```bash
+# 1. Test media server access from AI server
+docker-compose exec ai ls -la /shared/media
+
+# 2. Test file read/write
+docker-compose exec ai bash -c "
+echo 'ai test content' > /shared/media/ai_test_file.txt
+cat /shared/media/ai_test_file.txt
+rm /shared/media/ai_test_file.txt
+"
+```
+
+**Expected result**: AI server can read and write to media server.
+
+#### Media Server Range Request (Video Streaming)
+
+```bash
+# Test Range request support (for video streaming)
+docker-compose exec backend python -c "
+# Create a test file
+with open('/app/media/test_video.txt', 'w') as f:
+    f.write('x' * 1000)
+
+# Test Range request via curl
+import subprocess
+result = subprocess.run([
+    'curl', '-I', '-H', 'Range: bytes=0-499',
+    'http://localhost:8080/media/test_video.txt'
+], capture_output=True, text=True)
+print('Range request headers:')
+print(result.stdout)
+"
+```
+
+**Expected result**: HTTP 206 Partial Content response with Content-Range header.
+
+### Phase 4: End-to-End Communication Flow
+
+#### Video Processing Flow
+
+```bash
+# Test complete flow: Backend → AI Server → Media Server
+docker-compose exec backend python manage.py shell -c "
+from config.ai_client import get_ai_client
+import requests
+
+# 1. Verify AI server is accessible
+client = get_ai_client()
+health = requests.get(f'{client.base_url}/health', timeout=5)
+print('Step 1 - AI server health:', health.status_code)
+
+# 2. Verify media server is accessible
+import os
+media_path = '/app/media'
+print('Step 2 - Media server accessible:', os.path.exists(media_path))
+
+# 3. Verify AI server can access media
+# (This would require actual file path, but we're just checking connectivity)
+print('Step 3 - Communication paths verified')
+"
+```
+
+**Expected result**: All communication paths are accessible.
+
+#### Image Enhancement Flow
+
+```bash
+# Test image enhancement flow
+docker-compose exec backend python manage.py shell -c "
+from config.ai_client import get_ai_client
+
+client = get_ai_client()
+print('AI client configured for image enhancement')
+print('Base URL:', client.base_url)
+# Actual enhancement would require image file
+"
+```
+
+### Phase 5: Network Isolation Verification
+
+#### Service Name Resolution
+
+```bash
+# Verify services can resolve each other by name
+docker-compose exec backend ping -c 1 ai
+docker-compose exec backend ping -c 1 redis
+docker-compose exec backend ping -c 1 db
+docker-compose exec ai ping -c 1 backend
+docker-compose exec ai ping -c 1 redis
+```
+
+**Expected result**: All services can resolve each other via docker-compose network.
+
+#### Port Accessibility
+
+```bash
+# Verify ports are accessible within network
+docker-compose exec backend nc -zv ai 8001
+docker-compose exec backend nc -zv redis 6379
+docker-compose exec backend nc -zv db 3306
+docker-compose exec ai nc -zv backend 8000
+docker-compose exec ai nc -zv redis 6379
+```
+
+**Expected result**: All required ports are accessible.
+
+### Phase 6: Error Scenarios
+
+#### AI Server Unavailable
+
+```bash
+# Test error handling when AI server is down
+docker-compose stop ai
+docker-compose exec backend python manage.py shell -c "
+from config.ai_client import get_ai_client
+import requests
+
+client = get_ai_client()
+try:
+    response = requests.get(f'{client.base_url}/health', timeout=2)
+except requests.exceptions.ConnectionError as e:
+    print('Expected connection error:', type(e).__name__)
+"
+docker-compose start ai
+```
+
+**Expected result**: Connection error is caught and handled gracefully (retry logic should handle this).
+
+#### Redis Unavailable
+
+```bash
+# Test error handling when Redis is down
+docker-compose stop redis
+docker-compose exec backend python -c "
+import redis
+try:
+    r = redis.Redis(host='redis', port=6379, db=0, socket_connect_timeout=2)
+    r.ping()
+except redis.exceptions.ConnectionError as e:
+    print('Expected Redis connection error:', type(e).__name__)
+"
+docker-compose start redis
+```
+
+**Expected result**: Redis connection error is caught and handled.
+
+### Prohibited Patterns
+
+**Never do these**:
+
+- Use `localhost` or `127.0.0.1` in service-to-service communication (use service names: `ai`, `backend`, `redis`)
+- Hardcode IP addresses for service communication
+- Skip health checks before testing communication
+- Test communication without docker-compose network
+
+### Checklist
+
+Before proceeding to logic migration:
+
+- [ ] Redis DB 0 (cache/session) communication verified
+- [ ] Redis DB 1 (Celery broker) communication verified
+- [ ] Redis DB 2 (Celery result) communication verified
+- [ ] Backend → AI Server HTTP communication verified
+- [ ] Backend → Media Server communication verified
+- [ ] AI Server → Media Server communication verified
+- [ ] Service name resolution works (ping tests)
+- [ ] Port accessibility verified (nc tests)
+- [ ] Error handling tested (service unavailable scenarios)
+- [ ] End-to-end flow verified (video/image processing paths)
+
+### Next Steps
+
+After successful communication verification:
+
+1. Proceed to logic migration (see `logic-migration.mdc`)
+2. Set up integration tests (see `integration-testing.mdc`)
+3. Implement Redis Pub/Sub for SSE (future work)

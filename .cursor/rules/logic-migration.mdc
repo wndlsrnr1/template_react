@@ -1,0 +1,475 @@
+---
+description: Logic migration — endpoint-by-endpoint migration from backend_and_ai to backend/ai_server, wrapping legacy code without refactoring
+globs: **/views.py, **/services/**/*.py, **/routers/**/*.py
+alwaysApply: false
+---
+
+## Logic Migration (Service Separation Context)
+
+This guide covers migrating logic from monolithic `backend_and_ai` to separated `backend` and `ai_server` services, focusing on endpoint-by-endpoint migration with minimal refactoring.
+
+### Core Principles
+
+- **Wrap, don't refactor**: Migrate legacy code by wrapping, not refactoring. Refactor only after all tests pass.
+- **Endpoint-by-endpoint**: Migrate one endpoint at a time, verify each before proceeding.
+- **Test-first migration**: Write tests before migration, ensure same tests pass after migration.
+- **Preserve behavior**: Maintain exact same input/output behavior as legacy code.
+- **No direct model access**: Follow layered architecture (View → Service → Repository → Model).
+
+### Migration Workflow
+
+```
+Identify Endpoint → Write Test (Before) → Copy & Wrap Logic → Update Dependencies → Write Test (After) → Verify Tests Pass → Next Endpoint
+```
+
+### Phase 1: Endpoint Identification
+
+#### Identify Migration Target
+
+```bash
+# 1. List all endpoints in backend_and_ai
+cd /home/jik/projects/kotlip/backend_and_ai
+grep -r "class.*View\|def.*\(request" --include="*.py" | grep -v "__pycache__" | grep -v "migrations"
+
+# 2. Check which endpoints are already migrated
+cd /home/jik/projects/kotlip
+grep -r "class.*View\|def.*\(request" backend/ --include="*.py" | grep -v "__pycache__" | grep -v "migrations"
+grep -r "@app\.\|@router\." ai_server/ --include="*.py"
+```
+
+#### Categorize Endpoints
+
+**Backend endpoints** (business logic, metadata management):
+- Accounts: `/api/v1/accounts/*`
+- Projects: `/api/projects/*`
+- Video metadata: `/api/video/*` (except AI processing)
+- Fonts: `/api/fonts/*`
+
+**AI Server endpoints** (AI inference, model processing):
+- Video processing: `/ai/v1/video/process/*`
+- Image enhancement: `/ai/v1/image/enhance/*`
+- Transparent image: `/ai/v1/image/trans-enhance/*`
+
+**Already migrated** (reference for pattern):
+- See `작업진행내역.md` for completed endpoints
+
+### Phase 2: Test-First Migration Pattern
+
+#### Step 1: Write Test Before Migration
+
+```python
+# tests/test_video_migration.py
+from django.test import TestCase
+from rest_framework.test import APIClient
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+class VideoEndpointMigrationTest(TestCase):
+    """Test endpoint before migration to ensure behavior preservation"""
+    
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(
+            email='test@example.com',
+            password='testpass123'
+        )
+        self.client.force_authenticate(user=self.user)
+    
+    def test_video_upload_endpoint(self):
+        """Test video upload endpoint behavior"""
+        # Test exact behavior before migration
+        # This test should pass both before and after migration
+        pass
+    
+    def test_video_process_endpoint(self):
+        """Test video AI processing endpoint behavior"""
+        # Test exact behavior before migration
+        # After migration, this should call AI server via HTTP
+        pass
+```
+
+#### Step 2: Copy & Wrap Legacy Code
+
+**Pattern: Minimal Wrapping**
+
+```python
+# backend/video/views.py (after migration)
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from config.ai_client import get_ai_client
+
+class VideoProcessView(APIView):
+    """
+    Migrated from backend_and_ai/video/views.py
+    Wrapped legacy logic, changed AI call to HTTP client
+    """
+    
+    def post(self, request, video_id):
+        # 1. Validation (preserve legacy validation)
+        serializer = VideoProcessSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        # 2. Load video (preserve legacy loading logic)
+        try:
+            video = Video.objects.get(id=video_id, user=request.user)
+        except Video.DoesNotExist:
+            return Response(
+                {"detail": "Video not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # 3. Call AI server via HTTP (changed from direct function call)
+        ai_client = get_ai_client()
+        try:
+            result = ai_client.process_video(
+                video_id=video.id,
+                video_path=video.file.path,
+                **serializer.validated_data
+            )
+        except Exception as e:
+            return Response(
+                {"detail": f"AI processing failed: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
+        # 4. Update video status (preserve legacy update logic)
+        video.status = 'processed'
+        video.save()
+        
+        # 5. Return response (preserve legacy response format)
+        return Response({
+            "video_id": video.id,
+            "status": video.status,
+            "result": result
+        }, status=status.HTTP_200_OK)
+```
+
+**Key Points**:
+- Copy legacy logic exactly (no refactoring)
+- Only change: Direct AI function call → HTTP client call
+- Preserve all validation, error handling, response format
+
+#### Step 3: Update Dependencies
+
+**Remove Django-specific AI dependencies from backend**:
+
+```python
+# backend/video/views.py
+# REMOVE: from ai_model.utils import process_video_function
+# ADD: from config.ai_client import get_ai_client
+```
+
+**Add AI server endpoint**:
+
+```python
+# ai_server/app/routers/video.py
+from fastapi import APIRouter, HTTPException
+from app.utils.video_processor import process_video_sync
+
+router = APIRouter()
+
+@router.post("/video/process/")
+async def process_video_endpoint(request: VideoProcessRequest):
+    """
+    Migrated from backend_and_ai/ai_model/utils/process_video
+    Wrapped legacy processing logic
+    """
+    try:
+        # Copy legacy processing logic exactly
+        result = process_video_sync(
+            video_path=request.video_path,
+            **request.dict()
+        )
+        return {"status": "success", "result": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+```
+
+### Phase 3: AI Server Call Migration
+
+#### Pattern: Direct Function Call → HTTP Client
+
+**Before (backend_and_ai)**:
+
+```python
+# backend_and_ai/video/views.py
+from ai_model.utils import process_video_function
+
+class VideoProcessView(APIView):
+    def post(self, request, video_id):
+        result = process_video_function(video_id, **params)  # Direct call
+        return Response(result)
+```
+
+**After (backend)**:
+
+```python
+# backend/video/views.py
+from config.ai_client import get_ai_client
+
+class VideoProcessView(APIView):
+    def post(self, request, video_id):
+        ai_client = get_ai_client()
+        result = ai_client.process_video(video_id, **params)  # HTTP call
+        return Response(result)
+```
+
+**AI Client Implementation**:
+
+```python
+# backend/config/ai_client.py
+import requests
+from typing import Dict, Any
+import time
+
+class AIServerClient:
+    def __init__(self, base_url: str = None, timeout: int = 3600):
+        self.base_url = base_url or os.getenv('AI_SERVER_URL', 'http://ai:8001')
+        self.timeout = timeout
+        self.async_timeout = 30
+    
+    def process_video(self, video_id: int, **params) -> Dict[str, Any]:
+        """Call AI server video processing endpoint"""
+        url = f"{self.base_url}/ai/v1/video/process/"
+        payload = {"video_id": video_id, **params}
+        
+        # Retry logic (exponential backoff)
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                response = requests.post(url, json=payload, timeout=self.timeout)
+                response.raise_for_status()
+                return response.json()
+            except requests.exceptions.RequestException as e:
+                if attempt == max_retries - 1:
+                    raise
+                time.sleep(2 ** attempt)  # Exponential backoff
+```
+
+### Phase 4: Service Layer Migration (Optional but Recommended)
+
+#### Pattern: Extract to Service Layer
+
+**Before (View with direct ORM)**:
+
+```python
+# backend_and_ai/video/views.py
+class VideoProcessView(APIView):
+    def post(self, request, video_id):
+        video = Video.objects.get(id=video_id)  # Direct ORM
+        # ... processing logic ...
+        video.status = 'processed'
+        video.save()  # Direct ORM
+        return Response({"status": video.status})
+```
+
+**After (View → Service → Repository)**:
+
+```python
+# backend/video/views.py
+from video.services import VideoService
+
+class VideoProcessView(APIView):
+    def post(self, request, video_id):
+        serializer = VideoProcessSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        try:
+            result = VideoService.process_video(
+                video_id=video_id,
+                user=request.user,
+                **serializer.validated_data
+            )
+            return Response(result, status=status.HTTP_200_OK)
+        except ServiceError as e:
+            return Response({"detail": str(e)}, status=e.status_code)
+
+# backend/video/services.py
+from django.db import transaction
+from video.repositories import VideoRepository
+from config.ai_client import get_ai_client
+
+class VideoService:
+    @staticmethod
+    @transaction.atomic
+    def process_video(video_id: int, user, **params):
+        # 1. Load video via repository
+        video = VideoRepository.get_by_id_and_user(video_id, user)
+        if not video:
+            raise NotFoundServiceError("Video not found")
+        
+        # 2. Call AI server
+        ai_client = get_ai_client()
+        ai_result = ai_client.process_video(video_id, **params)
+        
+        # 3. Update video via repository
+        VideoRepository.update_status(video, 'processed')
+        
+        # 4. Return result
+        return {
+            "video_id": video.id,
+            "status": video.status,
+            "result": ai_result
+        }
+```
+
+**Note**: Service layer migration is optional. If legacy code is too complex, wrap it first, then refactor after all tests pass.
+
+### Phase 5: Endpoint-by-Endpoint Checklist
+
+For each endpoint:
+
+- [ ] **Identify**: Endpoint location in `backend_and_ai`
+- [ ] **Test Before**: Write test capturing current behavior
+- [ ] **Copy**: Copy legacy code to target service (backend or ai_server)
+- [ ] **Wrap**: Wrap legacy code with minimal changes
+- [ ] **Update Dependencies**: Change direct calls to HTTP client calls
+- [ ] **Test After**: Run same test, verify it passes
+- [ ] **Verify**: Manual test via API client
+- [ ] **Document**: Update endpoint documentation
+
+### Phase 6: Common Migration Patterns
+
+#### Pattern 1: Simple Endpoint (No AI)
+
+```python
+# backend/projects/views.py
+class ProjectListView(APIView):
+    """Migrated from backend_and_ai/project/views.py"""
+    
+    def get(self, request):
+        # Copy legacy logic exactly
+        projects = Project.objects.filter(user=request.user)
+        serializer = ProjectSerializer(projects, many=True)
+        return Response(serializer.data)
+```
+
+#### Pattern 2: Endpoint with AI Call
+
+```python
+# backend/video/views.py
+class VideoProcessView(APIView):
+    """Migrated from backend_and_ai/video/views.py"""
+    
+    def post(self, request, video_id):
+        # Legacy validation and loading
+        video = Video.objects.get(id=video_id)
+        
+        # Changed: Direct call → HTTP call
+        ai_client = get_ai_client()
+        result = ai_client.process_video(video_id, **params)
+        
+        # Legacy update and response
+        video.status = 'processed'
+        video.save()
+        return Response(result)
+```
+
+#### Pattern 3: AI Server Endpoint
+
+```python
+# ai_server/app/routers/video.py
+@router.post("/video/process/")
+async def process_video_endpoint(request: VideoProcessRequest):
+    """Migrated from backend_and_ai/ai_model/utils/process_video"""
+    
+    # Copy legacy processing logic exactly
+    result = process_video_sync(
+        video_path=request.video_path,
+        **request.dict()
+    )
+    return {"status": "success", "result": result}
+```
+
+### Phase 7: Error Handling Migration
+
+#### Preserve Legacy Error Handling
+
+```python
+# Preserve exact error messages and status codes
+try:
+    video = Video.objects.get(id=video_id)
+except Video.DoesNotExist:
+    return Response(
+        {"detail": "Video not found"},  # Same message as legacy
+        status=status.HTTP_404_NOT_FOUND  # Same status code
+    )
+```
+
+#### Add AI Server Error Handling
+
+```python
+# Add error handling for AI server calls
+try:
+    result = ai_client.process_video(video_id, **params)
+except requests.exceptions.Timeout:
+    return Response(
+        {"detail": "AI processing timeout"},
+        status=status.HTTP_504_GATEWAY_TIMEOUT
+    )
+except requests.exceptions.RequestException as e:
+    return Response(
+        {"detail": f"AI processing failed: {str(e)}"},
+        status=status.HTTP_500_INTERNAL_SERVER_ERROR
+    )
+```
+
+### Prohibited Patterns
+
+**Never do these during migration**:
+
+- **Refactor legacy code**: Wrap it first, refactor after tests pass
+- **Optimize prematurely**: Keep same performance characteristics
+- **Change behavior**: Input/output must be identical
+- **Remove error handling**: Preserve all error cases
+- **Skip tests**: Always write test before and after migration
+- **Direct model access in views**: Use service layer (if extracting) or wrap legacy code
+
+### Migration Order (Recommended)
+
+1. **Simple endpoints first** (no AI calls): Accounts, Fonts
+2. **Endpoints with AI calls**: Video processing, Image enhancement
+3. **Complex endpoints last**: Project extraction, Sequence management
+
+### Verification After Migration
+
+```bash
+# 1. Run tests
+docker-compose exec backend python manage.py test video.tests -v 2
+docker-compose exec backend python manage.py test project.tests -v 2
+
+# 2. Manual API test
+curl -X POST http://localhost:8080/api/video/1/process/ \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"param": "value"}'
+
+# 3. Verify AI server is called
+docker-compose logs ai | grep "video/process"
+
+# 4. Verify response format matches legacy
+# Compare response with legacy endpoint response
+```
+
+### Checklist
+
+For each migrated endpoint:
+
+- [ ] Test written before migration
+- [ ] Legacy code copied and wrapped
+- [ ] Dependencies updated (AI calls → HTTP client)
+- [ ] Test passes after migration
+- [ ] Manual API test successful
+- [ ] Error handling preserved
+- [ ] Response format matches legacy
+- [ ] Documentation updated
+
+### Next Steps
+
+After endpoint migration:
+
+1. Run integration tests (see `integration-testing.mdc`)
+2. Refactor wrapped code (only after all tests pass)
+3. Optimize performance (only after refactoring)

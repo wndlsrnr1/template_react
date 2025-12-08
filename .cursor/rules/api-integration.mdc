@@ -1,0 +1,98 @@
+---
+description: Django API 연동 — Axios 설정, API 모듈 구조, 에러 처리
+globs: **/src/api/**/*.js
+---
+
+## Django API 연동 가이드
+
+### API 구조
+
+**Axios 인스턴스**:
+- `src/api/axiosInstance.js`: 기본 axios 인스턴스 설정
+- baseURL: 개발/프로덕션 환경별 설정
+- 인터셉터: 요청/응답 전처리
+
+**API 모듈**:
+- `src/api/modules/`: 도메인별 API 함수 모듈
+- `src/api/controller.js`: 모듈 통합 및 export
+
+### API 호출 패턴
+
+**React Query 사용**:
+- `useQuery`: GET 요청 (조회)
+- `useMutation`: POST/PUT/DELETE 요청 (변경)
+- 쿼리 키: 계층적 구조 (`['projects', projectId]`)
+
+**API 모듈 구조**:
+```javascript
+// src/api/modules/project.js
+import axiosInstance from '../axiosInstance';
+
+export default {
+  list: () => axiosInstance.get('/projects/'),
+  get: (id) => axiosInstance.get(`/projects/${id}/`),
+  create: (data) => axiosInstance.post('/projects/', data),
+  update: (id, data) => axiosInstance.put(`/projects/${id}/`, data),
+  delete: (id) => axiosInstance.delete(`/projects/${id}/`),
+};
+```
+
+### 인증 처리
+
+**JWT 토큰**:
+- 요청 인터셉터에서 토큰 추가
+- 응답 인터셉터에서 401 에러 처리 (로그아웃)
+
+**인증 상태**:
+- Redux로 인증 상태 관리
+- React Query에서 인증 실패 시 자동 처리
+
+### 에러 처리
+
+**API 에러 분류**:
+- 400: 잘못된 요청 (유효성 검사 실패)
+- 401: 인증 실패 (로그인 필요)
+- 403: 권한 없음
+- 404: 리소스 없음
+- 500: 서버 에러
+
+**에러 처리 전략**:
+- React Query의 `onError` 콜백 활용
+- 전역 에러 핸들러 (인터셉터)
+- 사용자 친화적 에러 메시지 표시
+
+### 로딩 상태
+
+**React Query 로딩**:
+- `isLoading`: 초기 로딩
+- `isFetching`: 백그라운드 리프레시
+- `isPending`: Mutation 대기 상태
+
+**전역 로딩 스피너**:
+- `LoadingSpinner` 컴포넌트 활용
+- Redux로 전역 로딩 상태 관리 (선택)
+
+### 환경 설정
+
+**개발 환경**:
+- Vite 프록시: `/api` → Django 서버
+- CORS 설정: Django에서 허용
+
+**프로덕션 환경**:
+- baseURL: Django API 서버 직접 지정
+- 환경 변수로 관리
+
+### 비동기 작업 상태
+
+**STT 변환, 요약 생성 등**:
+- 폴링: `refetchInterval`로 주기적 조회
+- WebSocket: 실시간 업데이트 (선택)
+- 상태 필드: `status` 필드로 진행 상황 추적
+
+### 금지 사항
+
+1. **직접 fetch 사용**: Axios 인스턴스 사용
+2. **컴포넌트에서 직접 API 호출**: React Query 훅 사용
+3. **에러 무시**: 모든 API 에러 처리
+4. **하드코딩 URL**: 환경 변수 또는 설정 사용
+5. **인증 토큰 노출**: 로컬 스토리지에 안전하게 저장

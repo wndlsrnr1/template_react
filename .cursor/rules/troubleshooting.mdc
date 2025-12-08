@@ -1,0 +1,60 @@
+---
+description: Troubleshooting — service health, docker build, communication diagnostics for separated services
+globs: **/docker-compose.yml, **/logs/**, **/config/**/*.py
+alwaysApply: false
+---
+
+## Troubleshooting Guide
+
+### Backend Health Check Fails
+
+```bash
+# Check database connectivity
+docker-compose exec backend python manage.py dbshell
+
+# Check Redis connectivity
+docker-compose exec backend python -c "import redis; r = redis.Redis(host='redis', port=6379, db=0); r.ping()"
+
+# Check environment variables
+docker-compose exec backend env | grep -E 'DB_|REDIS_|AI_SERVER'
+```
+
+### AI Server Health Check Fails
+
+```bash
+# Check model weights path
+docker-compose exec ai ls -la /app/ai_model/models/
+
+# Check logs for model loading errors
+docker-compose logs ai | grep -i error
+
+# Verify GPU access (if using GPU)
+docker-compose exec ai nvidia-smi
+```
+
+### docker-compose Build Fails
+
+```bash
+# Check disk space
+df -h
+
+# Clean up old images (safe: only removes dangling images)
+docker image prune
+
+# Check build logs
+docker-compose build --no-cache backend 2>&1 | tee build.log
+```
+
+### Service Communication Fails
+
+```bash
+# Verify service name resolution
+docker-compose exec backend ping -c 1 ai
+
+# Verify port accessibility
+docker-compose exec backend nc -zv ai 8001
+
+# Check service logs
+docker-compose logs backend | tail -50
+docker-compose logs ai | tail -50
+```

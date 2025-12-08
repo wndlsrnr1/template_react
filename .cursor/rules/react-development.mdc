@@ -1,0 +1,80 @@
+---
+description: React 개발 가이드 — 컴포넌트 구조, 상태 관리, 라우팅
+globs: **/src/**/*.jsx, **/src/**/*.js
+---
+
+## React 개발 가이드
+
+### 프로젝트 구조
+
+**디렉토리 구조**:
+- `src/api/`: API 모듈 (axios 인스턴스, 모듈별 API 함수)
+- `src/components/`: 재사용 가능한 컴포넌트
+- `src/pages/`: 라우트별 페이지 컴포넌트
+- `src/store/`: Redux 상태 관리
+- `src/utils/`: 유틸 함수
+- `src/assets/`: 정적 파일 (CSS, 이미지 등)
+
+### 컴포넌트 개발 원칙
+
+1. **컴포넌트 분리**: 단일 책임 원칙, 재사용 가능한 구조
+2. **Props 타입**: 명확한 props 인터페이스
+3. **상태 관리**: 로컬 상태는 useState, 전역 상태는 Redux/React Query
+4. **스타일링**: Tailwind CSS 우선, 필요시 `*.module.css`
+
+### 상태 관리 전략
+
+**Redux Toolkit**:
+- 전역 상태: 사용자 정보, 인증 상태 등
+- 액션/리듀서: `store/reducers/`에 모듈별로 분리
+
+**React Query**:
+- 서버 상태: API 데이터 캐싱 및 동기화
+- 쿼리 키: 계층적 구조로 관리
+- 자동 리프레시 및 캐싱
+
+**로컬 상태 (useState)**:
+- 컴포넌트 내부 UI 상태만 관리
+- 폼 입력, 모달 열림/닫힘 등
+
+### 라우팅
+
+**React Router**:
+- `pages/index.jsx`: 라우트 정의
+- Lazy loading: 코드 스플리팅을 위한 동적 import
+- 중첩 라우팅: 필요시 사용
+
+### 스타일링
+
+**Tailwind CSS**:
+- 유틸리티 클래스 우선 사용
+- 커스텀 스타일: `*.module.css` 사용 (스타일 중첩 방지)
+
+### 컴포넌트 패턴
+
+**함수형 컴포넌트**:
+- Hooks 사용 (useState, useEffect, useCallback, useMemo)
+- 커스텀 훅으로 로직 분리
+
+**에러 처리**:
+- Error Boundary로 에러 캐치
+- API 에러는 React Query의 onError 활용
+
+### 성능 최적화
+
+**메모이제이션**:
+- `React.memo`: 불필요한 리렌더링 방지
+- `useMemo`: 계산 비용이 큰 값 메모이제이션
+- `useCallback`: 함수 메모이제이션
+
+**코드 스플리팅**:
+- Lazy loading으로 초기 로딩 시간 단축
+- 라우트별 코드 분할
+
+### 금지 사항
+
+1. **직접 DOM 조작**: React의 선언적 방식 사용
+2. **전역 변수**: 상태는 Redux/React Query로 관리
+3. **인라인 스타일**: Tailwind CSS 또는 CSS Module 사용
+4. **불필요한 리렌더링**: 메모이제이션 적절히 활용
+5. **API 호출을 컴포넌트에 직접**: React Query 훅 사용
