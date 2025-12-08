@@ -1,5 +1,15 @@
 import dayjs from "dayjs";
 
+interface DiffTimeResult {
+  year: number;
+  month: number;
+  week: number;
+  day: number;
+  hour: number;
+  minute: number;
+  second: number;
+}
+
 // 시간 및 날짜 관련 모듈
 export const time = {
   /**
@@ -8,7 +18,7 @@ export const time = {
    * @author kyeongbeom
    * @returns 현재 날짜 값
    */
-  getCurrentTime: () => {
+  getCurrentTime: (): string => {
     return dayjs().format();
   },
 
@@ -16,11 +26,11 @@ export const time = {
    * 원하는 포맷으로 날짜값 변환
    *
    * @author kyeongbeom
-   * @param  {String} time 날짜 값
-   * @param  {String} format 변환할 포맷
+   * @param time - 날짜 값
+   * @param format - 변환할 포맷
    * @returns 해당 날짜 값을 입력한 포맷대로 변환하여 반환
    */
-  getFormatTime: (time, format) => {
+  getFormatTime: (time: string | Date, format: string): string => {
     return dayjs(time).format(format);
   },
 
@@ -28,10 +38,10 @@ export const time = {
    * 년도 반환
    *
    * @author kyeongbeom
-   * @param  {String} time 날짜 값
+   * @param time - 날짜 값
    * @returns 해당 날짜 값 중 '년도' 값 반환
    */
-  getYear: (time) => {
+  getYear: (time: string | Date): number => {
     return dayjs(time).get("year");
   },
 
@@ -39,10 +49,10 @@ export const time = {
    * 달 반환
    *
    * @author kyeongbeom
-   * @param  {String} time 날짜 값
+   * @param time - 날짜 값
    * @returns 해당 날짜 값 중 '월' 값 반환
    */
-  getMonth: (time) => {
+  getMonth: (time: string | Date): number => {
     return dayjs(time).get("month") + 1;
   },
 
@@ -50,34 +60,34 @@ export const time = {
    * 일 반환
    *
    * @author kyeongbeom
-   * @param  {String} time 날짜 값
+   * @param time - 날짜 값
    * @returns 해당 날짜 값 중 '일' 값 반환
    */
-  getDate: (time) => {
+  getDate: (time: string | Date): number => {
     return dayjs(time).get("date");
   },
 
   /**
    * 요일 반환(한글)
    *
-   * @param  {String} time 날짜 값
-   * @return 해당 날짜 값 중 요일 값 한글 반환 (일:0 ~ 토:6)
+   * @param time - 날짜 값
+   * @returns 해당 날짜 값 중 요일 값 한글 반환 (일:0 ~ 토:6)
    * @author kyeongbeom
    */
-  getKoDay: (time) => {
+  getKoDay: (time: string | Date): string => {
     const dateList = ["일", "월", "화", "수", "목", "금", "토"];
-
-    return dateList[dayjs(time).get("day")];
+    const day = dayjs(time).get("day");
+    return dateList[day] ?? "";
   },
 
   /**
    * 요일 반환
    *
    * @author kyeongbeom
-   * @param  {String} time 날짜 값
+   * @param time - 날짜 값
    * @returns 해당 날짜 값 중 요일 값 반환 (일:0 ~ 토:6)
    */
-  getDay: (time) => {
+  getDay: (time: string | Date): number => {
     return dayjs(time).get("day");
   },
 
@@ -85,10 +95,10 @@ export const time = {
    * 시간 반환
    *
    * @author kyeongbeom
-   * @param  {String} time 날짜 값
+   * @param time - 날짜 값
    * @returns 해당 날짜 값 중 '시간' 값 반환
    */
-  getHour: (time) => {
+  getHour: (time: string | Date): number => {
     return dayjs(time).get("hour");
   },
 
@@ -96,10 +106,10 @@ export const time = {
    * 분 반환
    *
    * @author kyeongbeom
-   * @param  {String} time 날짜 값
+   * @param time - 날짜 값
    * @returns 해당 날짜 값 중 '분' 값 반환
    */
-  getMinute: (time) => {
+  getMinute: (time: string | Date): number => {
     return dayjs(time).get("minute");
   },
 
@@ -107,10 +117,10 @@ export const time = {
    * 초 반환
    *
    * @author kyeongbeom
-   * @param  {String} time 날짜 값
+   * @param time - 날짜 값
    * @returns 해당 날짜 값 중 '초'
    */
-  getSecond: (time) => {
+  getSecond: (time: string | Date): number => {
     return dayjs(time).get("second");
   },
 
@@ -118,17 +128,17 @@ export const time = {
    * 두 시간의 차이를 반환
    *
    * @author kyeongbeom
-   * @param  {String} time1 날짜 값
-   * @param  {String} time2 날짜 값
+   * @param time1 - 날짜 값
+   * @param time2 - 날짜 값
    * @returns 두 시간의 차이를 년도, 달, 주, 일, 시간, 분, 초로 저장하여 반환
    */
-  getdiffTime: (time1, time2) => {
+  getdiffTime: (time1: string | Date, time2: string | Date): DiffTimeResult => {
     let t1 = dayjs(time1);
     let t2 = dayjs(time2);
     t1.format("YYYY-MM-DD HH:mm:ss");
     t2.format("YYYY-MM-DD HH:mm:ss");
 
-    const response = {
+    const response: DiffTimeResult = {
       year: t1.diff(t2, "year"),
       month: t1.diff(t2, "month"),
       week: t1.diff(t2, "week"),
@@ -145,11 +155,11 @@ export const time = {
    * 날짜가 지정한 시간 단위에서 특정 날짜와 일치하는지 구하기
    *
    * @author kyeongbeom
-   * @param  {String} time1 날짜 값
-   * @param  {String} time2 날짜 값
+   * @param time1 - 날짜 값
+   * @param time2 - 날짜 값
    * @returns 두 날짜 (y-m-d)가 같은지 다른지 boolean 값으로 반환
    */
-  isSameTime: (time1, time2) => {
+  isSameTime: (time1: string | Date, time2: string | Date): boolean => {
     let date = dayjs(time1);
     return date.isSame(time2);
   },
@@ -158,24 +168,24 @@ export const time = {
    * 날짜가 지정한 시작, 종료 시간에 포함되는지 여부 반환하기
    *
    * @author kyeongbeom
-   * @param  {String} startTime 시작 날짜 값
-   * @param  {String} endTime 종료 날짜 값
-   * @param {String} compareTime 비교할 날짜 값 undefined로 넣으면 자동으로 오늘 날짜로 대체됨
+   * @param startTime - 시작 날짜 값
+   * @param endTime - 종료 날짜 값
+   * @param compareTime - 비교할 날짜 값 undefined로 넣으면 자동으로 오늘 날짜로 대체됨
    * @returns {compareTime}이 {startTime}과 {endTime} 사이의 값인지 여부 반환
    */
-  isBetweenTime: (startTime, endTime, compareTime) => {
+  isBetweenTime: (startTime: string | Date, endTime: string | Date, compareTime?: string | Date): boolean => {
     let compare = dayjs(compareTime);
 
-    return compare.isBetween(startTime, endTime);
+    return compare.isAfter(startTime) && compare.isBefore(endTime);
   },
 
   /**
    * 초를 입력하면 HH:mm:ss 형식으로 반환해주는 함수
-   * @param  {String} seconds 초
-   * @returns {string} HH:mm:ss
+   * @param seconds - 초
+   * @returns HH:mm:ss 형식의 문자열
    * @author kyeongbeom
    */
-  formatHHmmss: (seconds) => {
+  formatHHmmss: (seconds: number): string => {
     const h = Math.floor(seconds / 3600)
       .toString()
       .padStart(2, "0");

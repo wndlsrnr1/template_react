@@ -1,12 +1,17 @@
 import { lazy, Suspense, memo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { popModal } from "@/store/reducers/modal";
+import { RootState, AppDispatch } from "@/store";
 
-const ModalItem = memo(function ({ modal }) {
-  const dispatch = useDispatch();
-  const Modal = lazy(() => modal);
+interface ModalItemProps {
+  modal: () => Promise<{ default: React.ComponentType }>;
+}
 
-  function popModalWrap(e) {
+const ModalItem = memo(function ({ modal }: ModalItemProps) {
+  const dispatch = useDispatch<AppDispatch>();
+  const Modal = lazy(modal);
+
+  function popModalWrap(e: React.MouseEvent<HTMLDivElement>) {
     if (e.target === e.currentTarget) {
       dispatch(popModal());
     }
@@ -22,7 +27,7 @@ const ModalItem = memo(function ({ modal }) {
 });
 
 export default function ModalFrame() {
-  const modalStore = useSelector((state) => state.modal);
+  const modalStore = useSelector((state: RootState) => state.modal);
 
   const { modalList } = modalStore;
 

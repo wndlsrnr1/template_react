@@ -1,11 +1,15 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const initialState = {
+interface SpinnerState {
   /**
    * 로딩상태
    * @type {boolean}
    * @author kyeongbeom
    */
+  isLoading: boolean;
+}
+
+const initialState: SpinnerState = {
   isLoading: false,
 };
 
@@ -35,3 +39,4 @@ const spinnerSlice = createSlice({
 export const { activeSpinner, disableSpinner } = spinnerSlice.actions;
 
 export default spinnerSlice.reducer;
+

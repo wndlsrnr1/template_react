@@ -1,9 +1,10 @@
 import styles from "./LoadingSpinner.module.css";
 import main_logo from "@/assets/images/fullip_logo.png";
 import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 function LoadingSpinner() {
-  const spinnerStore = useSelector((state) => state.spinner);
+  const spinnerStore = useSelector((state: RootState) => state.spinner);
 
   return (
     <>

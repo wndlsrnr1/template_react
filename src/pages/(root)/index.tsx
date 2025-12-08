@@ -3,12 +3,13 @@ import { useDispatch } from "react-redux";
 import { pushModal } from "@/store/reducers/modal";
 import { activeSpinner } from "@/store/reducers/spinner";
 import { Link } from "react-router-dom";
+import { AppDispatch } from "@/store";
 
 export default function Root() {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   function showSampleModal() {
-    dispatch(pushModal(import("@/components/modal/SampleModal1")));
+    dispatch(pushModal(() => import("@/components/modal/SampleModal1")));
   }
 
   function showSpinner() {
@@ -31,3 +32,4 @@ export default function Root() {
     </div>
   );
 }
+

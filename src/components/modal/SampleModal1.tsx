@@ -1,15 +1,16 @@
 import { useDispatch } from "react-redux";
 import { popModal, pushModal } from "@/store/reducers/modal";
+import { AppDispatch } from "@/store";
 
 export default function SampleModal1() {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   function closeModal() {
     dispatch(popModal());
   }
 
   function showModal() {
-    dispatch(pushModal(import("@/components/modal/SampleModal2")));
+    dispatch(pushModal(() => import("@/components/modal/SampleModal2")));
   }
 
   return (
@@ -26,3 +27,4 @@ export default function SampleModal1() {
     </div>
   );
 }
+

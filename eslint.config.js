@@ -5,11 +5,13 @@ import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import eslintConfigPrettier from "eslint-config-prettier";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
+import tseslint from "typescript-eslint";
 
 export default [
   { ignores: ["dist"] },
+  ...tseslint.configs.recommended,
   {
-    files: ["**/*.{js,jsx}"],
+    files: ["**/*.{js,jsx,ts,tsx}"],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
@@ -32,6 +34,13 @@ export default [
       ...reactHooks.configs.recommended.rules,
       "react/jsx-no-target-blank": "off",
       "react-refresh/only-export-components": "off",
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+        },
+      ],
     },
   },
   eslintConfigPrettier,

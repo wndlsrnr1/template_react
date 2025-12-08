@@ -1,11 +1,17 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-const initialState = {
+type ModalModule = () => Promise<{ default: React.ComponentType }>;
+
+interface ModalState {
   /**
    * 모달 컴포넌트 배열
    * @type {Promise[]}
    * @author kyeongbeom
    */
+  modalList: ModalModule[];
+}
+
+const initialState: ModalState = {
   modalList: [],
 };
 
@@ -33,7 +39,7 @@ const modalSlice = createSlice({
      * 모달 추가 - push()
      * @author kyeongbeom
      */
-    pushModal: (state, action) => {
+    pushModal: (state, action: PayloadAction<ModalModule>) => {
       state.modalList.push(action.payload);
     },
   },
