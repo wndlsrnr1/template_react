@@ -2,6 +2,8 @@ import { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import Spinner from "@/components/spinner/LoadingSpinner";
 import ModalFrame from "@/components/modal/ModalFrame";
+import AlertProvider from "@/components/alert/AlertProvider";
+import { AuthProvider } from "@/auth";
 import { store } from "@/store";
 import { Provider } from "react-redux";
 import { RouterProvider } from "react-router-dom";
@@ -27,12 +29,15 @@ createRoot(rootElement).render(
   <StrictMode>
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
-        <Suspense>
-          <RouterProvider router={router} />
-        </Suspense>
-        <ModalFrame />
-        <Spinner />
-        <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-right" />
+        <AuthProvider>
+          <Suspense>
+            <RouterProvider router={router} />
+          </Suspense>
+          <ModalFrame />
+          <Spinner />
+          <AlertProvider />
+          <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-right" />
+        </AuthProvider>
       </QueryClientProvider>
     </Provider>
   </StrictMode>,
