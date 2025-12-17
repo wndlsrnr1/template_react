@@ -1,11 +1,11 @@
-import styles from "./index.module.css";
+import styles from "./RootPage.module.css";
 import { useDispatch } from "react-redux";
 import { pushModal } from "@/store/reducers/modal";
 import { activeSpinner } from "@/store/reducers/spinner";
 import { Link } from "react-router-dom";
 import { AppDispatch } from "@/store";
 
-export default function Root() {
+export default function RootPage() {
   const dispatch = useDispatch<AppDispatch>();
 
   function showSampleModal() {

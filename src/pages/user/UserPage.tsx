@@ -1,10 +1,10 @@
-import styles from "./index.module.css";
+import styles from "./UserPage.module.css";
 import { Link } from "react-router-dom";
 import $axios from "@/api/controller";
 import UserList from "./components/UserList";
 import { useQuery } from "@tanstack/react-query";
 
-export default function User() {
+export default function UserPage() {
   const { data: userList = [], isLoading, isError, error } = useQuery($axios.user.getUserList());
 
   return (
@@ -27,3 +27,4 @@ export default function User() {
     </div>
   );
 }
+
